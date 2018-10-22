@@ -32,23 +32,23 @@ def retrieveInstru(token):
 	instrument = list(instrument)
 	return instrument
 
-arc_token = "0845F71549970EA7756BD5765A1F3986"
+arc_token = ""
 arc_instruments = retrieveInstru(arc_token)
 arc_instruments = set([x.lower() for x in arc_instruments]) 
 
-p1_token = "1C5FEA79CCE2910D921AED8EBDF522E9"
+p1_token = ""
 p1_instruments = retrieveInstru(p1_token)
 p1_instruments = set([x.lower() for x in p1_instruments]) 
 
-p2_token = "F2E17F1291ED0990E0B64E88ED70CCE5"
+p2_token = ""
 p2_instruments = retrieveInstru(p2_token)
 p2_instruments = set([x.lower() for x in p2_instruments]) 
 
-p3_token = "4048FA48421A95C1C69123CB4C322BCE"
+p3_token = ""
 p3_instruments = retrieveInstru(p3_token)
 p3_instruments = set([x.lower() for x in p3_instruments]) 
 
-dev_token = "E643DF26872773CD6C4BE421CF36A476"
+dev_token = ""
 dev_instruments = retrieveInstru(dev_token)
 dev_instruments = set([x.lower() for x in dev_instruments]) 
 
