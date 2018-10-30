@@ -1,19 +1,54 @@
+import os
+import urllib2
+import urllib
+from urllib2 import Request
+from urllib import urlencode 
+import sys
 import requests
 import urllib
 from requests import post
 import pandas as pd
 import json
 import os.path
+import csv
+import numpy as np
+import datetime
+import pandas
+import os
 
-print("Calling RedCAP API...")
+# define the name of the directory to be created
+
+# 1. Consent Documentation
+# 2. Study Data
+# 3. Reports
+# 4. Communications
+
+# K:\ACE\ACE1\Participant Data
+
+# 40030 
+
+
+def getData(data):
+	r = post("https://redcap.duke.edu/redcap/api/", data)
+	r.content
+	d = urlencode(data)
+	req = urllib2.Request("https://redcap.duke.edu/redcap/api/", d)
+	response = urllib2.urlopen(req)
+	file = response.read()
+	result = json.loads(file)
+	df = pandas.DataFrame.from_records(result)
+	return df
+
+
 
 data = {
     'token': '',
     'content': 'record',
     'format': 'json',
     'type': 'flat',
-    'forms[0]': 'consent_example_testing',
-    'rawOrLabel': 'label',
+    'fields[0]': 'ace_id',
+    'events[0]': 'event_1_arm_1',
+    'rawOrLabel': 'raw',
     'rawOrLabelHeaders': 'raw',
     'exportCheckboxLabel': 'false',
     'exportSurveyFields': 'false',
@@ -21,56 +56,102 @@ data = {
     'returnFormat': 'json'
 }
 
-
-def getData(data):
-	r = post("https://redcap.duke.edu/redcap/api/", data)
-	r.content
-	d = urllib.parse.urlencode(data).encode("utf-8")
-	req = urllib.request.Request("https://redcap.duke.edu/redcap/api/", d)
-	response = urllib.request.urlopen(req)
-	file = response.read()
-	result = json.loads(file)
-	df = pd.DataFrame.from_records(result)
-	return df
+print("Calling RedCAP API...")
 
 
-data_logic = getData(data)
+consent_ids = getData(data)
+consent_ids = consent_ids['ace_id'].tolist()
 
-data_logic = data_logic[data_logic["enrollment_testing_complete"] == 'Complete']
 
+ace_id = ""
 
-def getPdf(record, instrument, filepath):
+for i in range(len(consent_ids)):
+    # print(sub_medical_df['ace_id'].values[i])
+    ace_id += str("[ace_id]= " + "'" + str(consent_ids[i]) + "'" +" or ")
 
-	pdf = {
+ace_id_filter = ace_id[:-4]
+
+print(ace_id)
+
+consent_ids = {
     'token': '',
-    'content': 'pdf',
-    'record': str(record),
-    'instrument': str(instrument),
-    'returnFormat': 'json'
-	}
+    'content': 'record',
+    'format': 'json',
+    'type': 'flat',
+    'fields[0]': 'ace_id',
+    'fields[1]': 'record_id',
+    'rawOrLabel': 'raw',
+    'rawOrLabelHeaders': 'raw',
+    'exportCheckboxLabel': 'false',
+    'exportSurveyFields': 'false',
+    'exportDataAccessGroups': 'false',
+    'returnFormat': 'json',
+    'filterLogic': "{}".format(ace_id_filter)
+}
+
+
+consent_ids = getData(consent_ids)
+ace_ids = consent_ids['ace_id'].tolist()
+print(consent_ids.columns.values)
+consent_ids = consent_ids['record_id'].tolist()
+
+
+
+def getPdf(record, ace_id):
 	
+	pdf = {
+	    'token': '715AD86FEC436F5361105156DCC6BA43',
+	    'content': 'pdf',
+	    'record': str(record),
+	    'instrument': 'ace1_consent_english',
+	    'returnFormat': 'json'
+	}
+
 	r = requests.post("https://redcap.duke.edu/redcap/api/", pdf, stream = True)
 
-	filename = r'C:\Users\wfc3\Desktop\Software\ace\{}\{}_{}.pdf'.format(filepath, record, instrument)
+# K:\ACE\ACE1\Participant Data
+# 1. Consent Documentation
+# 2. Study Data
+# 3. Reports
+# 4. Communications
+
+
+	path0 = r'K:\\ACE\\ACE1\\Participant Data\\ACE1_{}'.format(ace_id)
+	path1 = r'K:\\ACE\\ACE1\\Participant Data\\ACE1_{}\\1. Consent Documentation'.format(ace_id)
+	path2 = r'K:\\ACE\\ACE1\\Participant Data\\ACE1_{}\\2. Study Data'.format(ace_id)
+	path2_1 = r'K:\\ACE\\ACE1\\Participant Data\\ACE1_{}\\2. Study Data\\ADOS'.format(ace_id)
+	path2_2 = r'K:\\ACE\\ACE1\\Participant Data\\ACE1_{}\\2. Study Data\\EEG'.format(ace_id)
+	path2_3 = r'K:\\ACE\\ACE1\\Participant Data\\ACE1_{}\\2. Study Data\\EGT'.format(ace_id)
+	path2_4 = r'K:\\ACE\\ACE1\\Participant Data\\ACE1_{}\\2. Study Data\\Leiter'.format(ace_id)
+	path3 = r'K:\\ACE\\ACE1\\Participant Data\\ACE1_{}\\3. Reports'.format(ace_id)
+	path4 = r'K:\\ACE\\ACE1\\Participant Data\\ACE1_{}\\4. Communications'.format(ace_id)
+
+
+
+	if not os.path.exists(path0):
+		try:     
+		    os.makedirs(path0)
+		    os.makedirs(path1)
+		    os.makedirs(path2)
+		    os.makedirs(path2_1)
+		    os.makedirs(path2_2)
+		    os.makedirs(path2_3)
+		    os.makedirs(path2_4)
+		    os.makedirs(path3)
+		    os.makedirs(path4)
+
+		except OSError:  
+		    print ("Creation of the directory %s failed" % path4)
+		else:  
+		    print ("Successfully created the directory %s" % path4)
+
+	filename = r'K:\\ACE\\ACE1\Participant Data\\ACE1_{}\\1. Consent Documentation\\ACE1_{}.pdf'.format(ace_id, ace_id)
 
 	if(os.path.isfile(filename) == False):
 		with open(filename, 'wb') as f:
 			for chunk in r.iter_content():
 				f.write(chunk)
 
-for i in range(len(data_logic)):
-	if(data_logic['arc_consent'].values[i]  == 'Yes'):
-		getPdf(data_logic['record_id'].values[i], 'arc_consent', "arc\\consents")
 
-for i in range(len(data_logic)):
-	if(data_logic['p1_consent'].values[i]  == 'Yes'):
-		getPdf(data_logic['record_id'].values[i], 'p1_consent', "p1\\consents")
-
-for i in range(len(data_logic)):
-	if(data_logic['p2_consent'].values[i]  == 'Yes'):
-		getPdf(data_logic['record_id'].values[i], 'p2_consent', "p2\\consents")
-
-for i in range(len(data_logic)):
-	if(data_logic['p3_consent'].values[i]  == 'Yes'):
-		getPdf(data_logic['record_id'].values[i], 'p3_consent', 'p3\\consents')
-
+for i in range(len(consent_ids)):
+	getPdf(consent_ids[i], ace_ids[i])
