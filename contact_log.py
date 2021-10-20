@@ -33,8 +33,7 @@ def getData(data):
       response = urllib.request.urlopen(req)
       file = response.read()
       result = json.loads(file)
-      df = pandas.DataFrame.from_records(result)
-      return df
+      return pandas.DataFrame.from_records(result)
 
 contact = getData(contact)
 

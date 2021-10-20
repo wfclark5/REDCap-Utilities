@@ -10,15 +10,14 @@ import datetime
 ##Definition to grab data off of the redcap API
 
 def getData(data):
-	r = post("https://redcap.duke.edu/redcap/api/", data)	
+	r = post("https://redcap.duke.edu/redcap/api/", data)
 	r.content
 	d = urllib.parse.urlencode(data).encode("utf-8")
 	req = urllib.request.Request("https://redcap.duke.edu/redcap/api/", d)
 	response = urllib.request.urlopen(req)
 	file = response.read()
 	result = json.loads(file)
-	df = pd.DataFrame.from_records(result)
-	return df
+	return pd.DataFrame.from_records(result)
 
 
 #Redcap structure and qglobal structure comparison
@@ -29,16 +28,15 @@ qglobal_structure = pd.read_csv('vabs-3.csv')
 
 qglobal = pd.read_csv('vabs_qglobal_test.csv')
 
-table1 = []
+table1 = [
+    redcap_structure.values[stuff][0].lower()
+    for stuff in range(len(redcap_structure))
+]
 
-for stuff in range(len(redcap_structure)):
-	table1.append(redcap_structure.values[stuff][0].lower())
-
-
-table2 = []
-
-for stuff in range(len(qglobal_structure)):
-	table2.append(qglobal_structure.values[stuff][0].lower())
+table2 = [
+    qglobal_structure.values[stuff][0].lower()
+    for stuff in range(len(qglobal_structure))
+]
 
 table1.remove('vineland3_form')
 table1.remove('vi3_mbc_subdomains')
@@ -88,7 +86,7 @@ records = getData(data_export)
 for i in range(len(records)):
 	if(records['vabs3_complete'].values[i] == '2'):
 		qglobal_json[0]['record_id'] = str(records['record_id'].values[i])
-		
+
 		qglobal_json = json.dumps(qglobal_json)
 
 		print(qglobal_json)
@@ -103,7 +101,7 @@ for i in range(len(records)):
 		    'returnContent': 'count',
 		    'returnFormat': 'json',
 		}
-		
+
 
 		r = post("https://redcap.duke.edu/redcap/api/", data_import)
 		print(r.status_code)
