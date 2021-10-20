@@ -9,15 +9,14 @@ import numpy as np
 import datetime
 
 def getData(data):
-	r = post("https://redcap.duke.edu/redcap/api/", data)	
+	r = post("https://redcap.duke.edu/redcap/api/", data)
 	r.content
 	d = urllib.parse.urlencode(data).encode("utf-8")
 	req = urllib.request.Request("https://redcap.duke.edu/redcap/api/", d)
 	response = urllib.request.urlopen(req)
 	file = response.read()
 	result = json.loads(file)
-	df = pd.DataFrame.from_records(result)
-	return df
+	return pd.DataFrame.from_records(result)
 
 
 def retrieveInstru(token):
@@ -34,23 +33,23 @@ def retrieveInstru(token):
 
 arc_token = ""
 arc_instruments = retrieveInstru(arc_token)
-arc_instruments = set([x.lower() for x in arc_instruments]) 
+arc_instruments = {x.lower() for x in arc_instruments} 
 
 p1_token = ""
 p1_instruments = retrieveInstru(p1_token)
-p1_instruments = set([x.lower() for x in p1_instruments]) 
+p1_instruments = {x.lower() for x in p1_instruments} 
 
 p2_token = ""
 p2_instruments = retrieveInstru(p2_token)
-p2_instruments = set([x.lower() for x in p2_instruments]) 
+p2_instruments = {x.lower() for x in p2_instruments} 
 
 p3_token = ""
 p3_instruments = retrieveInstru(p3_token)
-p3_instruments = set([x.lower() for x in p3_instruments]) 
+p3_instruments = {x.lower() for x in p3_instruments} 
 
 dev_token = ""
 dev_instruments = retrieveInstru(dev_token)
-dev_instruments = set([x.lower() for x in dev_instruments]) 
+dev_instruments = {x.lower() for x in dev_instruments} 
 
 
 arc_dev = list(arc_instruments & dev_instruments)
@@ -113,7 +112,7 @@ def compareLog(token1, token2, comparison, project_comparison):
 		print("{} ".format(project_comparison)+ str(comparison[i]))
 		df1, df2 = compare(token1, token2, comparison[i])
 		print(len(df1), len(df2))
-		if(df1.equals(df2)== False):
+		if (df1.equals(df2)== False):
 			try:
 
 				ne_stacked = (df1 != df2).stack()
@@ -132,8 +131,6 @@ def compareLog(token1, token2, comparison, project_comparison):
 
 			except Exception as e:
 				logf.write(("{} ".format(project_comparison)+ str(comparison[i])))
-
-				pass
 
 compareLog(p1_token, arc_token, p1_arc, "Project 1/ARC Comparison")
 compareLog(p1_token, p2_token, p1_p2, "Project 1/Project 2 Comparison")

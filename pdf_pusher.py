@@ -36,8 +36,7 @@ def getData(data):
 	response = urllib2.urlopen(req)
 	file = response.read()
 	result = json.loads(file)
-	df = pandas.DataFrame.from_records(result)
-	return df
+	return pandas.DataFrame.from_records(result)
 
 
 
@@ -63,11 +62,9 @@ consent_ids = getData(data)
 consent_ids = consent_ids['ace_id'].tolist()
 
 
-ace_id = ""
-
-for i in range(len(consent_ids)):
-    # print(sub_medical_df['ace_id'].values[i])
-    ace_id += str("[ace_id]= " + "'" + str(consent_ids[i]) + "'" +" or ")
+ace_id = "".join(
+    str("[ace_id]= " + "'" + str(consent_ids[i]) + "'" + " or ")
+    for i in range(len(consent_ids)))
 
 ace_id_filter = ace_id[:-4]
 
